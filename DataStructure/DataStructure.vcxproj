@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{29c80984-7b3d-4a72-9854-aae1fd15f1c0}</ProjectGuid>
-    <RootNamespace>SimpleDataStructure</RootNamespace>
+    <ProjectGuid>{9e9f67d3-1a9b-4542-84b5-17222b2fbe6c}</ProjectGuid>
+    <RootNamespace>DataStructure</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -138,6 +138,46 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AdjMatrixGraph.cpp" />
+    <ClCompile Include="ListPriorityQueue.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MaxIntPriorityQueue.cpp" />
+    <ClCompile Include="String.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AdjListGraph.h" />
+    <ClInclude Include="AdjListGraph.hpp" />
+    <ClInclude Include="BinarySearchTree.h" />
+    <ClInclude Include="BinarySearchTree.hpp" />
+    <ClInclude Include="BinaryTree.h" />
+    <ClInclude Include="BinaryTree.hpp" />
+    <ClInclude Include="CircularLinkedList.h" />
+    <ClInclude Include="CircularLinkedList.hpp" />
+    <ClInclude Include="DFS.h" />
+    <ClInclude Include="DFS.hpp" />
+    <ClInclude Include="DoublyLinkedList.h" />
+    <ClInclude Include="DoublyLinkedList.hpp" />
+    <ClInclude Include="HashTable.h" />
+    <ClInclude Include="HashTable.hpp" />
+    <ClInclude Include="Heap.h" />
+    <ClInclude Include="Heap.hpp" />
+    <ClInclude Include="Queue.h" />
+    <ClInclude Include="Queue.hpp" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SinglyLinkedList.h" />
+    <ClInclude Include="SinglyLinkedList.hpp" />
+    <ClInclude Include="Stack.h" />
+    <ClInclude Include="Stack.hpp" />
+    <ClInclude Include="String.h" />
+    <ClInclude Include="Tree.h" />
+    <ClInclude Include="Tree.hpp" />
+    <ClInclude Include="Vector.h" />
+    <ClInclude Include="Vector.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DataStructure.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
