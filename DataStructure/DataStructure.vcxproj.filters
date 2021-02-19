@@ -134,6 +134,12 @@
     <ClInclude Include="DFS.hpp">
       <Filter>소스 파일\Graph</Filter>
     </ClInclude>
+    <ClInclude Include="(2,4)Tree.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="(2,4)Tree.hpp">
+      <Filter>소스 파일\Tree\SearchTree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DataStructure.rc">

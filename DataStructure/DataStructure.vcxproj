@@ -146,6 +146,8 @@
     <ClCompile Include="String.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="(2,4)Tree.h" />
+    <ClInclude Include="(2,4)Tree.hpp" />
     <ClInclude Include="AdjListGraph.h" />
     <ClInclude Include="AdjListGraph.hpp" />
     <ClInclude Include="BinarySearchTree.h" />
