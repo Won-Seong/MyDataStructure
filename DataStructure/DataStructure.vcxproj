@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AdjMatrixGraph.cpp" />
+    <ClCompile Include="btree.cpp" />
     <ClCompile Include="ListPriorityQueue.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MaxIntPriorityQueue.cpp" />

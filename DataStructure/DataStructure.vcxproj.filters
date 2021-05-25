@@ -50,6 +50,9 @@
     <ClCompile Include="String.cpp">
       <Filter>소스 파일\Linear</Filter>
     </ClCompile>
+    <ClCompile Include="btree.cpp">
+      <Filter>소스 파일\Tree\SearchTree</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vector.h">
