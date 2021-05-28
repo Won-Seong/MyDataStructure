@@ -8,7 +8,7 @@ protected:
 	int key_;
 	int value_;//인덱스 엔트리일 때에는 next_level_bid, 데이터 엔트리일 때에는 value
 public:
-	Entry(const int& key, const int& value) : key_(key), value_(value) { }
+	Entry(const int& key = int(), const int& value = int()) : key_(key), value_(value) { }
 	~Entry() {}
 public:
 	const int& get_key() const { return key_; }
@@ -34,8 +34,9 @@ protected:
 		//Leaf node일 경우 선형적으로 다음 leaf node의 ID를 가리킨다
 		//Non leaf node일 경우 다음 레벨의 Block ID를 가리킨다.
 		std::vector<Entry> entries;//Block size에 따라 엔트리를 얼마나 갖고 있을 것이냐가 정해진다.
+		int block_size_;
 	public:
-		Node(const int& block_id, bool flag = false, const int& next_bid = int()) :block_id_(block_id), leaf_flag_(flag), next_bid_(next_bid) {}
+		Node(const int& block_id, const int& block_size , bool flag = false, const int& next_bid = int()) :block_id_(block_id), block_size_(block_size) ,leaf_flag_(flag), next_bid_(next_bid) {}
 	public:
 		bool IsLeaf() const { return leaf_flag_; }
 		void SetLeaf() { leaf_flag_ = true; }
@@ -47,14 +48,15 @@ protected:
 				itr.Print();
 			std::cout << std::endl;
 		}
-		void WriteBlock(std::ofstream& ofs) const;
+		void WriteBlock(std::ofstream& ofs);
+		void ResizeBlock(const int& max_degree) { entries.resize(max_degree); }
 		int get_block_id() const { return block_id_; }
 		int get_next_bid() const { return next_bid_; }
-		void ReadBlockAsLeaf(std::ifstream& ifs, const int& block_size);
-		void ReadBlockAsIndex(std::ifstream& ifs, const int& block_size);
+		void ReadBlockAsLeaf(std::ifstream& ifs);
+		void ReadBlockAsIndex(std::ifstream& ifs);
 		const Entry& SearchEntry(const int& key) const;
 		void EntryClear() { entries.clear(); }//For debugging
-		Entry CheckAndSplit(const int& block_size, const int& input_bid, std::ofstream& ofs);//만약 블록이 정해진 degree보다 커질 경우...
+		Entry CheckAndSplit(const int& input_bid, std::ofstream& ofs);//만약 블록이 정해진 degree보다 커질 경우...
 	};
 public:
 	B_tree() : current_block_id_(2) {}
@@ -79,6 +81,8 @@ void CreateBinaryFile(std::ofstream& ofs, const int& block_size) {
 	ofs.flush();
 }
 
+
+
 int main() {
 	std::string file_name;
 	file_name = "tree.bin";
@@ -93,23 +97,21 @@ int main() {
 	CreateBinaryFile(ofs, 36);
 
 	tree.Insert(ifs, ofs, 1, 1);
-	tree.Insert(ifs, ofs, 2, 1);
-	tree.Insert(ifs, ofs, 3, 1);
-	tree.Insert(ifs, ofs, 4, 1);
-	tree.Insert(ifs, ofs, 5, 1);
-	tree.Insert(ifs, ofs, 6, 1);
-	tree.Insert(ifs, ofs, 7, 1);
-	
+	tree.Insert(ifs, ofs, 2, 2);
+	tree.Insert(ifs, ofs, 3, 3);
+	tree.Insert(ifs, ofs, 4, 4);
+	/*tree.Insert(ifs, ofs, 5, 5);
+	tree.Insert(ifs, ofs, 6, 6);
+	tree.Insert(ifs, ofs, 7, 7);*/
 
 
 	try
 	{
-		tree.PointSearch(ifs, 4);
-
+		std::cout << tree.PointSearch(ifs, 3);
 	}
-	catch (const std::exception& e)
+	catch (const std::exception&)
 	{
-		std::cout << e.what();
+
 	}
 	
 
@@ -153,8 +155,9 @@ Entry B_tree::Node::InsertEntry(const Entry& entry)
 	return entry;
 }
 
-void B_tree::Node::WriteBlock(std::ofstream& out_file_stream) const
+void B_tree::Node::WriteBlock(std::ofstream& out_file_stream) 
 {
+	ResizeBlock((block_size_ - 4) / 8);
 	if (IsLeaf()) {
 		for (auto& itr : entries) {
 			itr.WriteEntry(out_file_stream);
@@ -170,9 +173,9 @@ void B_tree::Node::WriteBlock(std::ofstream& out_file_stream) const
 	out_file_stream.flush();
 }
 
-void B_tree::Node::ReadBlockAsLeaf(std::ifstream& ifs, const int& block_size)
+void B_tree::Node::ReadBlockAsLeaf(std::ifstream& ifs)
 {
-	for (int i = 0; i < (block_size - 4) / 8; i++) {
+	for (int i = 0; i < (block_size_ - 4) / 8; i++) {
 		int temp_key = int();
 		int temp_value = int();
 		ifs.read((char*)&temp_key, sizeof(int));
@@ -185,16 +188,18 @@ void B_tree::Node::ReadBlockAsLeaf(std::ifstream& ifs, const int& block_size)
 	next_bid_ = temp_next_bid;
 }
 
-void B_tree::Node::ReadBlockAsIndex(std::ifstream& ifs, const int& block_size)
+void B_tree::Node::ReadBlockAsIndex(std::ifstream& ifs)
 {
 	int temp_next_bid = int();
 	ifs.read((char*)&temp_next_bid, sizeof(int));
 	next_bid_ = temp_next_bid;
-	for (int i = 0; i < (block_size - 4) / 8; i++) {
+	for (int i = 0; i < (block_size_ - 4) / 8; i++) {
 		int temp_key = int();
 		int temp_value = int();
 		ifs.read((char*)&temp_key, sizeof(int));
 		ifs.read((char*)&temp_value, sizeof(int));
+		if (temp_key == int() && temp_value == int()) continue;
+
 		entries.push_back(Entry{ temp_key,temp_value });
 	}
 }
@@ -207,15 +212,15 @@ const Entry& B_tree::Node::SearchEntry(const int& key) const
 	throw std::invalid_argument("No existed.");
 }
 
-Entry B_tree::Node::CheckAndSplit(const int& block_size, const int& input_bid, std::ofstream& ofs)
+Entry B_tree::Node::CheckAndSplit(const int& input_bid, std::ofstream& ofs)
 {
 	//1. 먼저 크기가 한도보다 커졌는지 검사한다.
-	int max_size = ((block_size - 4) / 8) + 1;
+	int max_size = ((block_size_ - 4) / 8) + 1;
 	if (max_size > entries.size()) return Entry(int(), int());//크기가 크지 않다면 빠져나간다.
 	
 
 	//2. 먼저 분할한다.
-	Node next_node{ input_bid };
+	Node next_node{ input_bid ,block_size_};
 
 	if (IsLeaf()) {
 		next_node.SetLeaf();
@@ -227,7 +232,7 @@ Entry B_tree::Node::CheckAndSplit(const int& block_size, const int& input_bid, s
 	//분할 완료
 
 	//3. 분할을 하였으므로 새 블록을 쓴다.
-	ofs.seekp(12 + (input_bid - 1) * block_size);
+	ofs.seekp(12 + (input_bid - 1) * block_size_);
 	next_node.WriteBlock(ofs);
 
 	//4. 다음 노드를 가리키는 엔트리를 생성하고 반환한다. 반환 후 처리는 다른 함수에서.
@@ -245,6 +250,7 @@ void Entry::WriteEntry(std::ofstream& out_file_stream) const
 
 bool B_tree::Insert(std::ifstream& ifs, std::ofstream& ofs, const int& key, const int& value)
 {
+	ifs.clear();
 	ifs.seekg(0, std::ios::beg);
 	int block_size = int();
 	int root_bid = int();
@@ -253,11 +259,14 @@ bool B_tree::Insert(std::ifstream& ifs, std::ofstream& ofs, const int& key, cons
 	ifs.read((char*)&root_bid, sizeof(int));
 	ifs.read((char*)&depth, sizeof(int));
 
+
+
 	//넣을 곳 찾아야하므로 우선 서치
 	BunchOfBlock blocks = std::move(Search(ifs, key));
 	
 	//삽입
 	blocks.back().InsertEntry(key, value);
+
 	for (auto& itr : blocks) {
 		itr.PrintNode();
 	}
@@ -285,16 +294,20 @@ int B_tree::PointSearch(std::ifstream& ifs, const int& key) const
 B_tree::BunchOfBlock B_tree::Search(std::ifstream& ifs, const int& key) const
 {
 	//우선 메타 데이터를 서치
+	ifs.clear();
 	ifs.seekg(0, std::ios::beg);
 	int block_size = int();
 	int root_bid = int();
 	int depth = int();
-	BunchOfBlock blocks;
 
 	ifs.read((char*)&block_size, sizeof(int));
 	ifs.read((char*)&root_bid, sizeof(int));
 	ifs.read((char*)&depth, sizeof(int));
 
+	BunchOfBlock blocks;
+
+
+	
 	//재귀적으로 서치
 	SearchUtility(ifs, blocks, root_bid, depth, block_size);
 	return blocks;
@@ -302,30 +315,32 @@ B_tree::BunchOfBlock B_tree::Search(std::ifstream& ifs, const int& key) const
 
 void B_tree::SearchUtility(std::ifstream& ifs, BunchOfBlock& blocks, const int& current_bid, int depth, const int& block_size) const
 {
+	ifs.seekg(12 + ((current_bid - 1) * block_size));
 	if (depth == 0) {
-		Node temp_node{ current_bid, true };
-		temp_node.ReadBlockAsLeaf(ifs, block_size);
+		Node temp_node{ current_bid, block_size, true };
+		temp_node.ReadBlockAsLeaf(ifs);
+		temp_node.PrintNode();
 		blocks.push_back(temp_node);
 		return;
 	}
-	Node temp_node{ current_bid, false };
-	temp_node.ReadBlockAsIndex(ifs, block_size);
+	Node temp_node{ current_bid, block_size };
+	temp_node.ReadBlockAsIndex(ifs);
 	blocks.push_back(temp_node);
 	SearchUtility(ifs, blocks, blocks.back().get_next_bid(), depth - 1, block_size);
 }
 
 void B_tree::InsertUtility(BunchOfBlock& blocks, std::ofstream& ofs, const int& block_size, const int& input_bid, const int& depth)
 {
-	Entry temp_entry = blocks.back().CheckAndSplit(block_size, input_bid, ofs);
+	Entry temp_entry = blocks.back().CheckAndSplit(input_bid, ofs);
 	ofs.seekp(12 + (blocks.back().get_block_id() - 1) * 8);
 	if (temp_entry == Entry(int(), int())) {
 		blocks.back().WriteBlock(ofs);
 	}
 	else {//만약 크다면 우선 next_node는 write했으므로 현재 노드를 써야 한다.
 		blocks.back().WriteBlock(ofs);
-
+		
 		if (blocks.size() == 1) {
-			Node root_node{++current_block_id_ , false, blocks.back().get_block_id()};
+			Node root_node{++current_block_id_ , block_size ,false, blocks.back().get_block_id()};
 			ofs.seekp(12 + (root_node.get_block_id() - 1) * 8);
 			root_node.WriteBlock(ofs);
 
@@ -341,6 +356,7 @@ void B_tree::InsertUtility(BunchOfBlock& blocks, std::ofstream& ofs, const int& 
 		blocks.back().InsertEntry(temp_entry);
 		InsertUtility(blocks, ofs, block_size, blocks.back().get_block_id(), depth);
 	}
+	
 }
 
 
