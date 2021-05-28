@@ -1,3 +1,4 @@
+//컴퓨터 공학과 12141508 김성원
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -9,6 +10,7 @@ protected:
 	int value_;//인덱스 엔트리일 때에는 next_level_bid, 데이터 엔트리일 때에는 value
 public:
 	Entry(const int& key = int(), const int& value = int()) : key_(key), value_(value) { }
+	Entry operator=(const Entry& entry) { key_ = entry.get_key(); value_ = entry.get_value(); return *this; }
 	~Entry() {}
 public:
 	const int& get_key() const { return key_; }
@@ -55,6 +57,7 @@ protected:
 		void ReadBlockAsLeaf(std::ifstream& ifs);
 		void ReadBlockAsIndex(std::ifstream& ifs);
 		const Entry& SearchEntry(const int& key) const;
+		int SearchEntryForNextId(const int& key) const;
 		void EntryClear() { entries.clear(); }//For debugging
 		Entry CheckAndSplit(const int& input_bid, std::ofstream& ofs);//만약 블록이 정해진 degree보다 커질 경우...
 	};
@@ -65,7 +68,7 @@ public:
 	int PointSearch(std::ifstream& ifs, const int& key) const;
 	void Print() const;
 private:
-	void SearchUtility(std::ifstream& ifs, BunchOfBlock& blocks, const int& current_bid, int depth, const int& block_size) const;
+	void SearchUtility(std::ifstream& ifs, BunchOfBlock& blocks, const int& current_bid, int depth, const int& block_size, const int& key) const;
 	BunchOfBlock Search(std::ifstream& ifs, const int& key) const;//Search
 	void InsertUtility(BunchOfBlock& blocks,std::ofstream& ofs, const int& block_size, const int& input_bid, const int& depth);
 private:
@@ -80,8 +83,6 @@ void CreateBinaryFile(std::ofstream& ofs, const int& block_size) {
 	ofs.write((char*)&temp, sizeof(int));//depth
 	ofs.flush();
 }
-
-
 
 int main() {
 	std::string file_name;
@@ -100,18 +101,22 @@ int main() {
 	tree.Insert(ifs, ofs, 2, 2);
 	tree.Insert(ifs, ofs, 3, 3);
 	tree.Insert(ifs, ofs, 4, 4);
-	/*tree.Insert(ifs, ofs, 5, 5);
+	tree.Insert(ifs, ofs, 5, 1235);
 	tree.Insert(ifs, ofs, 6, 6);
-	tree.Insert(ifs, ofs, 7, 7);*/
+	tree.Insert(ifs, ofs, 7, 7);
 
+
+	
 
 	try
 	{
-		std::cout << tree.PointSearch(ifs, 3);
+		std::cout << tree.PointSearch(ifs, 5);
+		std::cout << tree.PointSearch(ifs, 6);
+		std::cout << tree.PointSearch(ifs, 7);
 	}
-	catch (const std::exception&)
+	catch (const std::exception& e)
 	{
-
+		std::cout << e.what();
 	}
 	
 
@@ -212,32 +217,45 @@ const Entry& B_tree::Node::SearchEntry(const int& key) const
 	throw std::invalid_argument("No existed.");
 }
 
+int B_tree::Node::SearchEntryForNextId(const int& key) const
+{
+	if (entries.front().get_key() > key) return next_bid_;
+	std::vector<Entry>::const_iterator c_iter = entries.cbegin();
+	for (; c_iter != entries.cend(); c_iter++) {
+		if (c_iter.operator*().get_key() > key) return (c_iter - 1).operator*().get_value();
+	}
+	return entries.back().get_value();
+}
+
 Entry B_tree::Node::CheckAndSplit(const int& input_bid, std::ofstream& ofs)
 {
 	//1. 먼저 크기가 한도보다 커졌는지 검사한다.
 	int max_size = ((block_size_ - 4) / 8) + 1;
 	if (max_size > entries.size()) return Entry(int(), int());//크기가 크지 않다면 빠져나간다.
 	
-
 	//2. 먼저 분할한다.
 	Node next_node{ input_bid ,block_size_};
 
 	if (IsLeaf()) {
 		next_node.SetLeaf();
 		next_bid_ = input_bid;
-	}
+	}//만약 LeafNode라면
+
 	std::vector<Entry>::iterator iter = (max_size % 2) == 1 ? entries.begin() + ((max_size - 1) / 2) : entries.begin() + (max_size / 2);//위치 지정
-	std::copy(iter, entries.end(), next_node.entries.begin());
+	std::copy(iter, entries.end(), std::back_inserter(next_node.entries));
 	entries.erase(iter, entries.end());
+
 	//분할 완료
 
 	//3. 분할을 하였으므로 새 블록을 쓴다.
+
 	ofs.seekp(12 + (input_bid - 1) * block_size_);
 	next_node.WriteBlock(ofs);
+	ofs.flush();
 
 	//4. 다음 노드를 가리키는 엔트리를 생성하고 반환한다. 반환 후 처리는 다른 함수에서.
 	Entry temp_entry{ next_node.entries.front().get_key(), input_bid };
-	ofs.flush();
+
 	return temp_entry;
 }
 
@@ -267,19 +285,16 @@ bool B_tree::Insert(std::ifstream& ifs, std::ofstream& ofs, const int& key, cons
 	//삽입
 	blocks.back().InsertEntry(key, value);
 
-	for (auto& itr : blocks) {
-		itr.PrintNode();
-	}
-
+	
 	//사이즈가 한도보다 큰가?
 	InsertUtility(blocks, ofs, block_size, current_block_id_, depth);
-	current_block_id_++;
 	return true;
 }
 
 int B_tree::PointSearch(std::ifstream& ifs, const int& key) const
 {
 	BunchOfBlock blocks = std::move(Search(ifs, key));
+	
 	try
 	{
 		return blocks.back().SearchEntry(key).get_value();
@@ -305,50 +320,55 @@ B_tree::BunchOfBlock B_tree::Search(std::ifstream& ifs, const int& key) const
 	ifs.read((char*)&depth, sizeof(int));
 
 	BunchOfBlock blocks;
-
-
 	
 	//재귀적으로 서치
-	SearchUtility(ifs, blocks, root_bid, depth, block_size);
+	SearchUtility(ifs, blocks, root_bid, depth, block_size, key);
 	return blocks;
 }
 
-void B_tree::SearchUtility(std::ifstream& ifs, BunchOfBlock& blocks, const int& current_bid, int depth, const int& block_size) const
+void B_tree::SearchUtility(std::ifstream& ifs, BunchOfBlock& blocks, const int& current_bid, int depth, const int& block_size, const int& key) const
 {
 	ifs.seekg(12 + ((current_bid - 1) * block_size));
 	if (depth == 0) {
 		Node temp_node{ current_bid, block_size, true };
 		temp_node.ReadBlockAsLeaf(ifs);
-		temp_node.PrintNode();
 		blocks.push_back(temp_node);
 		return;
 	}
 	Node temp_node{ current_bid, block_size };
 	temp_node.ReadBlockAsIndex(ifs);
 	blocks.push_back(temp_node);
-	SearchUtility(ifs, blocks, blocks.back().get_next_bid(), depth - 1, block_size);
+	int next_bid = blocks.back().SearchEntryForNextId(key); 
+	SearchUtility(ifs, blocks, next_bid, depth - 1, block_size, key);
 }
 
 void B_tree::InsertUtility(BunchOfBlock& blocks, std::ofstream& ofs, const int& block_size, const int& input_bid, const int& depth)
 {
 	Entry temp_entry = blocks.back().CheckAndSplit(input_bid, ofs);
-	ofs.seekp(12 + (blocks.back().get_block_id() - 1) * 8);
+	ofs.seekp(12 + (blocks.back().get_block_id() - 1) * block_size);
+
 	if (temp_entry == Entry(int(), int())) {
 		blocks.back().WriteBlock(ofs);
 	}
 	else {//만약 크다면 우선 next_node는 write했으므로 현재 노드를 써야 한다.
+		current_block_id_++;//분할했으므로
 		blocks.back().WriteBlock(ofs);
 		
 		if (blocks.size() == 1) {
-			Node root_node{++current_block_id_ , block_size ,false, blocks.back().get_block_id()};
-			ofs.seekp(12 + (root_node.get_block_id() - 1) * 8);
+			Node root_node{current_block_id_ , block_size ,false, blocks.back().get_block_id()};
+			root_node.InsertEntry(temp_entry);
+			ofs.seekp(12 + (root_node.get_block_id() - 1) * block_size);
 			root_node.WriteBlock(ofs);
+
 
 			ofs.seekp(4);
 			int temp_bid = root_node.get_block_id();
 			int temp_depth = depth + 1;
 			ofs.write((char*)&(temp_bid), sizeof(int));
 			ofs.write((char*)&(temp_depth), sizeof(int));
+
+			current_block_id_++;
+			ofs.flush();
 			return;
 		}//만약 Root가 한도가 넘었다면
 
