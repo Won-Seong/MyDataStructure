@@ -321,12 +321,13 @@ void B_tree::Print(std::ifstream& ifs) const
 
 	std::queue<int> temp_queue;//ID를 담는 큐
 	temp_queue.push(root_bid);
-	size_t temp_size = temp_queue.size();
+	size_t temp_size = size_t();
 	int temp = int();//ID 지정할 때마다 쓰일 임시 변수
 
 	for (int i = 0; i < depth; i++) {
 
 		std::cout << "<" << i << ">" << std::endl;
+		temp_size = temp_queue.size();
 		for (int j = 0; j < temp_size; j++) {
 			temp = temp_queue.front();
 			temp_queue.pop();
@@ -374,7 +375,7 @@ void B_tree::SearchUtility(std::ifstream& ifs, BunchOfBlock& blocks, const int& 
 
 void B_tree::InsertUtility(BunchOfBlock& blocks, std::ofstream& ofs, const int& block_size, const int& input_bid, const int& depth)
 {
-	Entry temp_entry = blocks.back().CheckAndSplit(input_bid, ofs);
+	Entry temp_entry = blocks.back().CheckAndSplit(current_block_id_, ofs);
 	ofs.seekp(12 + (blocks.back().get_block_id() - 1) * block_size);
 	if (temp_entry == Entry(int(), int())) {
 		blocks.back().WriteBlock(ofs);
@@ -382,8 +383,9 @@ void B_tree::InsertUtility(BunchOfBlock& blocks, std::ofstream& ofs, const int& 
 	else {//만약 크다면 우선 next_node는 write했으므로 현재 노드를 써야 한다.
 		current_block_id_++;//분할했으므로
 		blocks.back().WriteBlock(ofs);
-		
+		std::cout << "hehe" << std::endl;
 		if (blocks.size() == 1) {
+			std::cout << "WOW!" << std::endl;
 			Node root_node{current_block_id_ , block_size ,false, blocks.back().get_block_id()};
 			root_node.InsertEntry(temp_entry);
 			ofs.seekp(12 + (root_node.get_block_id() - 1) * block_size);
@@ -403,9 +405,8 @@ void B_tree::InsertUtility(BunchOfBlock& blocks, std::ofstream& ofs, const int& 
 
 		blocks.pop_back();
 		blocks.back().InsertEntry(temp_entry);
-		InsertUtility(blocks, ofs, block_size, blocks.back().get_block_id(), depth);
+		InsertUtility(blocks, ofs, block_size, current_block_id_, depth);
 	}
-	
 }
 
 void B_tree::SearchMetaData(int& block_size, int& root_bid, int& depth, std::ifstream& ifs) const
@@ -422,7 +423,9 @@ int main(char* argv[]) {
 	B_tree tree;
 	std::string file_name;
 	std::string file_name_for_insert;
+	std::string file_name_for_out;
 	std::ofstream ofs;
+	std::ofstream ofs_for_out;
 	std::ifstream ifs;
 	std::ifstream ifs_for_insert;
 	int key_temp = int();
@@ -433,10 +436,35 @@ int main(char* argv[]) {
 
 	std::string str;
 	std::vector<Entry> good;
+	std::vector<int> temp_int;
 
-	std::cin >> command;
+	ifs.open("btree.bin", std::ios::binary);
+	ofs.open("btree.bin", std::ios::binary);
 
-	switch (command)
+	CreateBinaryFile(ofs, 20);
+	tree.Insert(ifs, ofs, 16, 11);
+	tree.Insert(ifs, ofs, 1, 11);
+	tree.Insert(ifs, ofs, 2, 11);
+	tree.Insert(ifs, ofs, 9, 11);
+	tree.Insert(ifs, ofs, 11, 11);
+	tree.Insert(ifs, ofs, 3, 11);
+	tree.Insert(ifs, ofs, 5, 11);
+	tree.Insert(ifs, ofs, 6, 11);
+	tree.Insert(ifs, ofs, 4, 11);
+	tree.Insert(ifs, ofs, 7, 11);
+	tree.Insert(ifs, ofs, 12, 11);
+	tree.Insert(ifs, ofs, 8, 11);
+	tree.Insert(ifs, ofs, 10, 11);
+	tree.Insert(ifs, ofs, 13, 11);
+	tree.Insert(ifs, ofs, 14, 11);
+	tree.Insert(ifs, ofs, 15, 11);
+	tree.Insert(ifs, ofs, 17, 11);
+
+	tree.Print(ifs);
+
+
+
+	/*switch (command)
 	{
 	case 'c':
 		std::cin >> file_name >> block_size;
@@ -453,10 +481,17 @@ int main(char* argv[]) {
 		
 		while (ifs_for_insert) {
 			if (ifs_for_insert.eof()) break;
-			std::getline(ifs_for_insert, str, ',');
-			key_temp = std::stoi(str);
-			std::getline(ifs_for_insert, str, '\n');
-			value_temp = std::stoi(str);
+			try
+			{
+				std::getline(ifs_for_insert, str, ',');
+				key_temp = std::stoi(str);
+				std::getline(ifs_for_insert, str, '\n');
+				value_temp = std::stoi(str);
+			}
+			catch (const std::exception& e)
+			{
+				break;
+			}
 			std::cout << key_temp << ' ' << value_temp << std::endl;
 			good.push_back(Entry{ key_temp, value_temp });
 		}
@@ -465,17 +500,12 @@ int main(char* argv[]) {
 		ifs_for_insert.close();
 		ifs.open(file_name, std::ios::binary);
 		ofs.open(file_name, std::ios::binary || std::ios::ate);
-		if (!ifs.is_open() || !ofs.is_open()) {
-			std::cout << "파일을 찾을 수 없습니다!" << std::endl;
-			return 0;
-		}
 		
 
 		for (auto& itr : good) {
 			try
 			{
 				tree.Insert(ifs, ofs, itr.get_key(), itr.get_value());
-
 			}
 			catch (const std::exception& e)
 			{
@@ -485,9 +515,50 @@ int main(char* argv[]) {
 		
 		
 		break;
+	case 's' :
+		std::cin >> file_name >> file_name_for_insert >> file_name_for_out;
+		ifs_for_insert.open(file_name_for_insert);
+
+		while (ifs_for_insert) {
+			try
+			{
+				std::getline(ifs_for_insert, str);
+				temp_int.push_back(std::stoi(str));
+			}
+			catch (const std::exception&)
+			{
+				break;
+			}
+			
+		}
+
+
+		ifs.open(file_name, std::ios::binary);
+
+		tree.Print(ifs);
+
+
+
+		ofs.open(file_name_for_out);
+
+		for (auto& itr : temp_int) {
+			try
+			{
+				Entry etr = tree.PointSearch(ifs, itr);
+				etr.Print();
+				ofs << etr.get_key() << ' ' << etr.get_value() << std::endl;
+
+			}
+			catch (const std::exception&)
+			{
+
+			}
+		}
+
+		break;
 	default:
 		break;
-	}
+	}*/
 
 
 
