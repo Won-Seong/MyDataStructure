@@ -118,7 +118,7 @@ void BinaryTree<T>::Clear()
 }
 
 template<typename T>
-typename BinaryTree<T>::PositionList BinaryTree<T>::VectorOfSubTree(const Position& position)
+typename BinaryTree<T>::PositionList BinaryTree<T>::VectorfsubTree(const Position& position)
 {
 	PositionList pos_list;
 	PreOrder(position.pointed_node_, pos_list);

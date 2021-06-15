@@ -105,7 +105,7 @@ public:
 	void PrintByPostOrder() const;//후위 순회하면서 각 노드가 가진 원소를 출력한다.
 	void PrintByInOrder() const;//중위 순회하면서 각 노드가 가진 원소를 출력한다.
 	void Clear();//모든 노드를 삭제한다.
-	SimplePositionList VectorOfSubTree(const Position& position);
+	SimplePositionList VectorfsubTree(const Position& position);
 protected:
 	void PreOrder(Position pointed_node, PositionList& position_list) const;//트리를 전위 순회하는 내부 편의 함수이다.
 	void PostOrder(Position pointed_node, PositionList& position_list)const;//트리를 후위 순회하는 내부 편의 함수이다.
