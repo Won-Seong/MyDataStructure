@@ -86,7 +86,7 @@ public:
 private:
 	void SearchUtility(std::ifstream& ifs, BunchOfBlock& blocks, const int& current_bid, int depth, const int& block_size, const int& key) const;
 	BunchOfBlock Search(std::ifstream& ifs, const int& key) const;//Search
-	void InsertUtility(BunchOfBlock& blocks,std::ofstream& ofs, const int& block_size, const int& input_bid, const int& depth);
+	void InsertUtility(BunchOfBlock& blocks,std::ofstream& ofs, const int& block_size, const int& depth);
 	void SearchMetaData(int& block_size, int& root_bid, int& depth, std::ifstream& ifs) const;
 private:
 	int current_block_id_; //1부터 시작, 0은 Null Block
@@ -214,16 +214,22 @@ Entry B_tree::Node::CheckAndSplit(const int& input_bid, std::ofstream& ofs)
 
 	//2. 먼저 분할한다.
 	Node next_node{ input_bid ,block_size_};
+	std::vector<Entry>::iterator iter = (max_size % 2) == 1 ? entries.begin() + ((max_size - 1) / 2) : entries.begin() + (max_size / 2);//위치 지정
+	Entry temp_entry{ iter.operator*().get_key(), input_bid };
 
+	//만약 LeafNode라면
 	if (IsLeaf()) {
 		next_node.SetLeaf();
+		next_node.next_bid_ = next_bid_;
 		next_bid_ = input_bid;
-	}//만약 LeafNode라면
-
-	std::vector<Entry>::iterator iter = (max_size % 2) == 1 ? entries.begin() + ((max_size - 1) / 2) : entries.begin() + (max_size / 2);//위치 지정
-	std::copy(iter, entries.end(), std::back_inserter(next_node.entries));
-	entries.erase(iter, entries.end());
-
+		std::copy(iter, entries.end(), std::back_inserter(next_node.entries));
+		entries.erase(iter, entries.end());
+	}
+	else {
+		next_node.next_bid_ = iter.operator*().get_value();
+		std::copy(iter + 1, entries.end(), std::back_inserter(next_node.entries));
+		entries.erase(iter, entries.end());
+	}
 	//분할 완료
 
 	//3. 분할을 하였으므로 새 블록을 쓴다.
@@ -233,7 +239,6 @@ Entry B_tree::Node::CheckAndSplit(const int& input_bid, std::ofstream& ofs)
 	ofs.flush();
 
 	//4. 다음 노드를 가리키는 엔트리를 생성하고 반환한다. 반환 후 처리는 다른 함수에서.
-	Entry temp_entry{ next_node.entries.front().get_key(), input_bid };
 
 	return temp_entry;
 }
@@ -259,7 +264,7 @@ bool B_tree::Insert(std::ifstream& ifs, std::ofstream& ofs, const int& key, cons
 	blocks.back().InsertEntry(key, value);
 	
 	//사이즈가 한도보다 큰가?
-	InsertUtility(blocks, ofs, block_size, current_block_id_, depth);
+	InsertUtility(blocks, ofs, block_size, depth);
 	return true;
 }
 
@@ -336,6 +341,8 @@ void B_tree::Print(std::ifstream& ifs) const
 			Node temp_node{ 0, block_size };
 			temp_node.ReadBlockAsIndex(ifs);
 			temp_node.PrintForPrint();
+			std::cout << ", ";
+			temp_queue.push(temp_node.get_next_bid());
 			temp_node.GetAllValuesForPrint(temp_queue);
 		}
 		std::cout << std::endl;
@@ -373,7 +380,7 @@ void B_tree::SearchUtility(std::ifstream& ifs, BunchOfBlock& blocks, const int& 
 	SearchUtility(ifs, blocks, next_bid, depth - 1, block_size, key);
 }
 
-void B_tree::InsertUtility(BunchOfBlock& blocks, std::ofstream& ofs, const int& block_size, const int& input_bid, const int& depth)
+void B_tree::InsertUtility(BunchOfBlock& blocks, std::ofstream& ofs, const int& block_size,  const int& depth)
 {
 	Entry temp_entry = blocks.back().CheckAndSplit(current_block_id_, ofs);
 	ofs.seekp(12 + (blocks.back().get_block_id() - 1) * block_size);
@@ -405,7 +412,7 @@ void B_tree::InsertUtility(BunchOfBlock& blocks, std::ofstream& ofs, const int& 
 
 		blocks.pop_back();
 		blocks.back().InsertEntry(temp_entry);
-		InsertUtility(blocks, ofs, block_size, current_block_id_, depth);
+		InsertUtility(blocks, ofs, block_size, depth);
 	}
 }
 
@@ -438,33 +445,10 @@ int main(char* argv[]) {
 	std::vector<Entry> good;
 	std::vector<int> temp_int;
 
-	ifs.open("btree.bin", std::ios::binary);
-	ofs.open("btree.bin", std::ios::binary);
 
-	CreateBinaryFile(ofs, 20);
-	tree.Insert(ifs, ofs, 16, 11);
-	tree.Insert(ifs, ofs, 1, 11);
-	tree.Insert(ifs, ofs, 2, 11);
-	tree.Insert(ifs, ofs, 9, 11);
-	tree.Insert(ifs, ofs, 11, 11);
-	tree.Insert(ifs, ofs, 3, 11);
-	tree.Insert(ifs, ofs, 5, 11);
-	tree.Insert(ifs, ofs, 6, 11);
-	tree.Insert(ifs, ofs, 4, 11);
-	tree.Insert(ifs, ofs, 7, 11);
-	tree.Insert(ifs, ofs, 12, 11);
-	tree.Insert(ifs, ofs, 8, 11);
-	tree.Insert(ifs, ofs, 10, 11);
-	tree.Insert(ifs, ofs, 13, 11);
-	tree.Insert(ifs, ofs, 14, 11);
-	tree.Insert(ifs, ofs, 15, 11);
-	tree.Insert(ifs, ofs, 17, 11);
+	std::cin >> command;
 
-	tree.Print(ifs);
-
-
-
-	/*switch (command)
+	switch (command)
 	{
 	case 'c':
 		std::cin >> file_name >> block_size;
@@ -507,9 +491,9 @@ int main(char* argv[]) {
 			{
 				tree.Insert(ifs, ofs, itr.get_key(), itr.get_value());
 			}
-			catch (const std::exception& e)
+			catch (const std::exception&)
 			{
-				std::cout << e.what() << std::endl;
+				std::cout << "Error!" << std::endl;
 			}
 		}
 		
@@ -556,9 +540,14 @@ int main(char* argv[]) {
 		}
 
 		break;
+	case 'p':
+		std::cin >> file_name;
+		ifs.open(file_name, std::ios::binary);
+		tree.Print(ifs);
+		break;
 	default:
 		break;
-	}*/
+	}
 
 
 
