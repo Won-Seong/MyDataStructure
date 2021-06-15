@@ -210,7 +210,6 @@ Entry B_tree::Node::CheckAndSplit(const int& input_bid, std::ofstream& ofs)
 	//1. 먼저 크기가 한도보다 커졌는지 검사한다.
 
 	int max_size = ((block_size_ - 4) / 8) + 1;
-	std::cout << max_size << ' ' << entries.size() << std::endl;
 	if (max_size > entries.size()) return Entry(int(), int());//크기가 크지 않다면 빠져나간다.
 
 	//2. 먼저 분할한다.
@@ -252,8 +251,6 @@ bool B_tree::Insert(std::ifstream& ifs, std::ofstream& ofs, const int& key, cons
 	int root_bid = int();
 	int depth = int();
 	SearchMetaData(block_size, root_bid, depth,ifs);
-
-	std::cout << block_size << ' ' << root_bid << ' ' << depth << std::endl;
 
 	//넣을 곳 찾아야하므로 우선 서치
 	BunchOfBlock blocks = std::move(Search(ifs, key));
@@ -428,9 +425,11 @@ int main(char* argv[]) {
 	std::ofstream ofs;
 	std::ifstream ifs;
 	std::ifstream ifs_for_insert;
-	int block_size = int();
 	int key_temp = int();
 	int value_temp = int();
+
+	int block_size = 1, root_bid = 2, depth = 3;
+
 
 	std::string str;
 	std::vector<Entry> good;
@@ -447,10 +446,13 @@ int main(char* argv[]) {
 		break;
 	case 'i':
 		std::cin >> file_name >> file_name_for_insert;
-		/*ifs_for_insert.open(file_name_for_insert);
+		std::cout << file_name << std::endl;
+		std::cout << file_name_for_insert << std::endl;
+		ifs_for_insert.open(file_name_for_insert);
 		
 		
 		while (ifs_for_insert) {
+			if (ifs_for_insert.eof()) break;
 			std::getline(ifs_for_insert, str, ',');
 			key_temp = std::stoi(str);
 			std::getline(ifs_for_insert, str, '\n');
@@ -460,14 +462,25 @@ int main(char* argv[]) {
 		}
 
 
-		ifs_for_insert.close();*/
-		good.push_back(Entry{ 3,4 });
+		ifs_for_insert.close();
 		ifs.open(file_name, std::ios::binary);
-		ofs.open(file_name, std::ios::binary);
-
+		ofs.open(file_name, std::ios::binary || std::ios::ate);
+		if (!ifs.is_open() || !ofs.is_open()) {
+			std::cout << "파일을 찾을 수 없습니다!" << std::endl;
+			return 0;
+		}
+		
 
 		for (auto& itr : good) {
-			tree.Insert(ifs,ofs,itr.get_key(), itr.get_value());
+			try
+			{
+				tree.Insert(ifs, ofs, itr.get_key(), itr.get_value());
+
+			}
+			catch (const std::exception& e)
+			{
+				std::cout << e.what() << std::endl;
+			}
 		}
 		
 		
