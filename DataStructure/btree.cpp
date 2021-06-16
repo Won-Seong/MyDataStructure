@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <string>
 
-class Entry : std::exception {
+class Entry : public std::exception {
 protected:
 	int key_;
 	int value_;//It has next block ID if it's an index entry, otherwise value.
@@ -25,7 +25,7 @@ public:
 	}
 };//8Byte
 
-class B_tree : std::exception {
+class B_tree : public std::exception {
 protected:
 	class Node; //(8 * Entry number + 4)Byte
 	using BunchOfBlock = std::vector<Node>;
