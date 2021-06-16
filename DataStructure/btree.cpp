@@ -81,11 +81,11 @@ public:
 	Entry PointSearch(std::fstream& fs, const int& key) const;
 	std::vector<Entry> RangeSearch(std::fstream& fs, const int& left_key, const int& right_key) const;
 	void Print(std::fstream& fs, std::fstream& out_fs) const;
+	void UpdateMetaData(std::fstream& fs);
 private:
 	void SearchUtility(std::fstream& fs, BunchOfBlock& blocks, const unsigned int& current_bid, unsigned int depth ,const int& key) const;
 	BunchOfBlock Search(std::fstream& fs, const int& key) const;//Search
 	void InsertUtility(BunchOfBlock& blocks, std::fstream& fs);
-	void UpdateMetaData(std::fstream& fs);
 private://Metadata
 	unsigned int current_block_id_;//Starts at one, zero is a null block. 
 	size_t block_size_;//Should be (4 + 8k)
@@ -332,7 +332,7 @@ B_tree::BunchOfBlock B_tree::Search(std::fstream& fs, const int& key) const
 void B_tree::SearchUtility(std::fstream& fs, BunchOfBlock& blocks, const unsigned int& current_bid, unsigned int depth ,const int& key) const
 {
 	fs.seekg(12 + (current_bid - 1) * block_size_);
-	if (depth_ == 0) {
+	if (depth == 0) {
 		Node temp_node{ current_bid, true };
 		temp_node.ReadBlock(fs,block_size_);
 		blocks.push_back(temp_node);
@@ -354,27 +354,23 @@ void B_tree::InsertUtility(BunchOfBlock& blocks, std::fstream& fs)
 		blocks.back().WriteBlock(fs,block_size_);
 		return;
 	}
-	else {//If overflow has occurred, 
+	else {//If overflow has occurred, update the old block.
 		current_block_id_++;
 		blocks.back().WriteBlock(fs,block_size_);
-		if (blocks.size() <= 1) {
+		if (blocks.size() <= 1) {//If the root block has overflowed...
 			Node root_node{ current_block_id_ , false, blocks.back().get_block_id() };
 			root_node.InsertEntry(temp_entry);
 			fs.seekp(12 + (root_node.get_block_id() - 1) * block_size_);
 			root_node.WriteBlock(fs,block_size_);
-
-
+			//Update metadata
 			fs.seekp(4);
 			int temp_bid = root_node.get_block_id();
 			int temp_depth = depth_ + 1;
 			fs.write((char*)&(temp_bid), sizeof(int));
 			fs.write((char*)&(temp_depth), sizeof(int));
-
 			current_block_id_++;
-			fs.flush();
 			return;
-		}//만약 Root가 한도가 넘었다면
-
+		}
 		blocks.pop_back();
 		blocks.back().InsertEntry(temp_entry);
 		InsertUtility(blocks, fs);
@@ -423,6 +419,7 @@ int main(char* argv[]) {
 		std::cin >> file_name >> file_name_for_insert;
 		fs_for_insert.open(file_name_for_insert, std::ios::in);
 		fs.open(file_name, std::ios::out | std::ios::in | std::ios::binary);
+		tree.UpdateMetaData(fs);
 
 		while (fs_for_insert) {
 			if (fs_for_insert.eof()) break;
@@ -472,8 +469,11 @@ int main(char* argv[]) {
 
 		}
 		fs_for_insert.close();
-		fs.open(file_name, std::ios::binary | std::ios::in | std::ios::out);
+		fs.open(file_name, std::ios::binary | std::ios::in);
+		tree.UpdateMetaData(fs);
+
 		fs_for_insert.open(file_name_for_out, std::ios::out);
+
 
 		for (auto& itr : temp_int) {
 			try
@@ -481,11 +481,10 @@ int main(char* argv[]) {
 				Entry etr = tree.PointSearch(fs, itr);
 				etr.Print();
 				fs_for_insert << etr.get_key() << ',' << etr.get_value() << std::endl;
-
 			}
 			catch (const std::exception&)
 			{
-
+				std::cout << "asdf!" << std::endl;
 			}
 		}
 
@@ -514,7 +513,7 @@ int main(char* argv[]) {
 		fs_for_insert.close();
 		fs.open(file_name, std::ios::in | std::ios::binary);
 		fs_for_insert.open(file_name_for_out, std::ios::out);
-
+		tree.UpdateMetaData(fs);
 
 		for (auto& itr : tuples) {
 			try
@@ -535,6 +534,7 @@ int main(char* argv[]) {
 	case 'p':
 		std::cin >> file_name >> file_name_for_insert;
 		fs.open(file_name, std::ios::binary | std::ios::in);
+		tree.UpdateMetaData(fs);
 		fs_for_insert.open(file_name_for_insert, std::ios::out);
 		tree.Print(fs, fs_for_insert);
 		break;
