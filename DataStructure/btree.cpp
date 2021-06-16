@@ -494,19 +494,9 @@ int main() {
 	std::string file_name_for_out;//For txt
 	std::fstream fs;//For btree.bin
 	std::fstream fs_for_other;//For txt
-
-	int key_temp = int();
-	int value_temp = int();
-	int block_size = 1, root_bid = 2, depth = 3;
-
-
-	std::string str;
-	std::vector<Entry> good;
-	std::vector<int> temp_int;
-
+	int block_size = int();
 
 	std::cin >> command;
-
 	switch (command)
 	{
 	case 'c':
