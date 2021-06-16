@@ -64,7 +64,7 @@ protected:
 			}
 		}
 		void WriteBlock(std::fstream& fs, const size_t block_size);//Write to file.
-		void ResizeBlock(const size_t& block_size) { entries.resize( (block_size - 4) / 8); }
+		void ResizeBlock(const size_t& block_size) { entries.resize((block_size - 4) / 8); }
 		unsigned int get_block_id() const { return block_id_; }
 		unsigned int get_next_bid() const { return next_bid_; }
 		void ReadBlock(std::fstream& fs, const size_t block_size);
@@ -83,7 +83,7 @@ public:
 	void Print(std::fstream& fs, std::fstream& out_fs) const;
 	void UpdateMetaData(std::fstream& fs);
 private:
-	void SearchUtility(std::fstream& fs, BunchOfBlock& blocks, const unsigned int& current_bid, unsigned int depth ,const int& key) const;
+	void SearchUtility(std::fstream& fs, BunchOfBlock& blocks, const unsigned int& current_bid, unsigned int depth, const int& key) const;
 	BunchOfBlock Search(std::fstream& fs, const int& key) const;//Search
 	void InsertUtility(BunchOfBlock& blocks, std::fstream& fs);
 private://Metadata
@@ -143,13 +143,13 @@ void B_tree::Node::WriteBlock(std::fstream& fs, const size_t block_size)
 {
 	ResizeBlock(block_size);
 	if (IsLeaf()) {
-		for (auto& itr : entries) 
+		for (auto& itr : entries)
 			itr.WriteEntry(fs);
 		fs.write((char*)&next_bid_, sizeof(int));
 	}
 	else {
 		fs.write((char*)&next_bid_, sizeof(int));
-		for (auto& itr : entries) 
+		for (auto& itr : entries)
 			itr.WriteEntry(fs);
 	}
 	fs.flush();
@@ -187,7 +187,7 @@ void B_tree::Node::ReadBlock(std::fstream& fs, const size_t block_size)
 
 const Entry& B_tree::Node::SearchEntry(const int& key) const
 {
-	for (auto& itr : entries) 
+	for (auto& itr : entries)
 		if (itr.get_key() == key) return itr;
 	throw std::invalid_argument("No existed!");
 }
@@ -226,7 +226,7 @@ Entry B_tree::Node::CheckAndSplit(std::fstream& fs, const unsigned int& input_bi
 	}
 	//Write the new block.
 	fs.seekp(12 + (input_bid - 1) * block_size);
-	next_node.WriteBlock(fs,block_size);
+	next_node.WriteBlock(fs, block_size);
 	//Return the node that points the new block.
 	return temp_entry;
 }
@@ -279,7 +279,7 @@ std::vector<Entry> B_tree::RangeSearch(std::fstream& fs, const int& left_key, co
 	for (bool flag = false; flag == false; ) {
 		fs.seekg(12 + (next_bid - 1) * block_size_, std::ios::beg);
 		Node temp_node{ next_bid , true };
-		temp_node.ReadBlock(fs,block_size_);
+		temp_node.ReadBlock(fs, block_size_);
 		for (auto& itr : temp_node.GetEntries()) {
 			if (itr.get_key() <= right_key) { entries.push_back(itr); }
 			else {
@@ -310,8 +310,8 @@ void B_tree::Print(std::fstream& fs, std::fstream& out_fs) const
 			temp_queue.pop();
 			fs.seekg(12 + (temp - 1) * block_size_);
 
-			Node temp_node{ int()};
-			temp_node.ReadBlock(fs,block_size_);
+			Node temp_node{ int() };
+			temp_node.ReadBlock(fs, block_size_);
 			temp_node.PrintForPrint(out_fs);
 			temp_queue.push(temp_node.get_next_bid());
 			temp_node.GetAllValuesForPrint(temp_queue);
@@ -325,21 +325,21 @@ B_tree::BunchOfBlock B_tree::Search(std::fstream& fs, const int& key) const
 {
 	fs.clear();
 	BunchOfBlock blocks;
-	SearchUtility(fs, blocks, root_bid_, depth_ ,key);
+	SearchUtility(fs, blocks, root_bid_, depth_, key);
 	return blocks;
 }
 
-void B_tree::SearchUtility(std::fstream& fs, BunchOfBlock& blocks, const unsigned int& current_bid, unsigned int depth ,const int& key) const
+void B_tree::SearchUtility(std::fstream& fs, BunchOfBlock& blocks, const unsigned int& current_bid, unsigned int depth, const int& key) const
 {
 	fs.seekg(12 + (current_bid - 1) * block_size_);
 	if (depth == 0) {
 		Node temp_node{ current_bid, true };
-		temp_node.ReadBlock(fs,block_size_);
+		temp_node.ReadBlock(fs, block_size_);
 		blocks.push_back(temp_node);
 		return;
 	}
 	Node temp_node{ current_bid };
-	temp_node.ReadBlock(fs,block_size_);
+	temp_node.ReadBlock(fs, block_size_);
 	blocks.push_back(temp_node);
 	int next_bid = blocks.back().SearchEntryForNextId(key);
 	SearchUtility(fs, blocks, next_bid, depth - 1, key);
@@ -351,17 +351,17 @@ void B_tree::InsertUtility(BunchOfBlock& blocks, std::fstream& fs)
 	fs.clear();
 	fs.seekp(12 + (blocks.back().get_block_id() - 1) * block_size_);
 	if (temp_entry == Entry(int(), int())) {
-		blocks.back().WriteBlock(fs,block_size_);
+		blocks.back().WriteBlock(fs, block_size_);
 		return;
 	}
 	else {//If overflow has occurred, update the old block.
 		current_block_id_++;
-		blocks.back().WriteBlock(fs,block_size_);
+		blocks.back().WriteBlock(fs, block_size_);
 		if (blocks.size() <= 1) {//If the root block has overflowed...
 			Node root_node{ current_block_id_ , false, blocks.back().get_block_id() };
 			root_node.InsertEntry(temp_entry);
 			fs.seekp(12 + (root_node.get_block_id() - 1) * block_size_);
-			root_node.WriteBlock(fs,block_size_);
+			root_node.WriteBlock(fs, block_size_);
 			//Update metadata
 			fs.seekp(4);
 			int temp_bid = root_node.get_block_id();
@@ -386,20 +386,119 @@ void B_tree::UpdateMetaData(std::fstream& fs)
 	fs.read((char*)&depth_, sizeof(int));
 }
 
-int main(char* argv[]) {
+bool InsertFromText(std::fstream& fs, std::fstream& fs_second, B_tree& tree) {
+	std::string str;
+	int key_temp = int(), value_temp = int();
+	std::vector<Entry> entries;
+	while (fs_second) {
+		if (fs_second.eof()) break;
+		try
+		{
+			std::getline(fs_second, str, ',');
+			key_temp = std::stoi(str);
+			std::getline(fs_second, str, '\n');
+			value_temp = std::stoi(str);
+		}
+		catch (const std::exception&)
+		{
+			break;
+		}
+		entries.push_back(Entry{ key_temp, value_temp });
+	}
+	for (auto& itr : entries) {
+		try
+		{
+			tree.Insert(fs, itr.get_key(), itr.get_value());
+		}
+		catch (const std::exception&)
+		{
+			std::cout << "Error!" << std::endl;
+			return false;
+		}
+	}
+	return true;
+}
+
+bool PointSearchFromText(std::fstream& fs, std::fstream& fs_second, std::string& file_name_for_out, B_tree& tree) {
+	std::string str;
+	std::vector<int> bunch_of_key;
+	while (fs_second) {
+		try
+		{
+			std::getline(fs_second, str);
+			bunch_of_key.push_back(std::stoi(str));
+		}
+		catch (const std::exception&)
+		{
+			break;
+		}
+	}
+	fs_second.close();
+	fs_second.open(file_name_for_out, std::ios::out);
+	for (auto& itr : bunch_of_key) {
+		try
+		{
+			Entry entry = tree.PointSearch(fs, itr);
+			fs_second << entry.get_key() << ',' << entry.get_value() << std::endl;
+		}
+		catch (const std::exception&)
+		{
+			std::cout << "Key number " << itr << " makes an error!" << std::endl;
+		}
+	}
+	return true;
+}
+
+bool RangeSearchFromText(std::fstream& fs, std::fstream& fs_second, std::string& file_name_for_out, B_tree& tree) {
+	std::string str;
+	std::vector<std::tuple<int, int>> bunch_of_keys;
+	int left_key = int(), right_key = int();
+
+	while (fs_second) {
+		try
+		{
+			std::getline(fs_second, str, ',');
+			left_key = std::stoi(str);
+			std::getline(fs_second, str, '\n');
+			right_key = std::stoi(str);
+			bunch_of_keys.push_back(std::make_tuple(left_key,right_key));
+		}
+		catch (const std::exception&)
+		{
+			break;
+		}
+	}
+	fs_second.close();
+	fs_second.open(file_name_for_out, std::ios::out);
+	for (auto& itr : bunch_of_keys) {
+		try
+		{
+			std::vector<Entry> entries = tree.RangeSearch(fs, std::get<0>(itr), std::get<1>(itr));
+			for (auto& itr_2 : entries)
+				fs_second << itr_2.get_key() << ',' << itr_2.get_value() << '\t';
+		}
+		catch (const std::exception&)
+		{
+			std::cout << "Key number " << std::get<0>(itr) << "," << std::get<1>(itr) << " makes an error!" << std::endl;
+		}
+		fs_second << std::endl;
+	}
+	return true;
+}
+
+int main() {
 	char command;
 	B_tree tree;
-	std::string file_name;
-	std::string file_name_for_insert;
-	std::string file_name_for_out;
-	std::fstream fs;
-	std::fstream fs_for_insert;
+	std::string file_name;//For btree.bin
+	std::string file_name_for_insert;//For txt
+	std::string file_name_for_out;//For txt
+	std::fstream fs;//For btree.bin
+	std::fstream fs_for_other;//For txt
+
 	int key_temp = int();
 	int value_temp = int();
-
 	int block_size = 1, root_bid = 2, depth = 3;
 
-	std::vector<std::tuple<int, int>> tuples;
 
 	std::string str;
 	std::vector<Entry> good;
@@ -413,136 +512,68 @@ int main(char* argv[]) {
 	case 'c':
 		std::cin >> file_name >> block_size;
 		fs.open(file_name, std::ios::binary | std::ios::out | std::ios::trunc);
+		if (!fs.is_open()) {
+			std::cout << "Can't open the file!" << std::endl;
+			return 1;
+		}
 		CreateBinaryFile(fs, block_size);
+		fs.close();
 		break;
 	case 'i':
 		std::cin >> file_name >> file_name_for_insert;
-		fs_for_insert.open(file_name_for_insert, std::ios::in);
+		fs_for_other.open(file_name_for_insert, std::ios::in);
 		fs.open(file_name, std::ios::out | std::ios::in | std::ios::binary);
+		if (!fs.is_open() || !fs_for_other.is_open()) {
+			std::cout << "Can't open the file!" << std::endl;
+			return 1;
+		}
 		tree.UpdateMetaData(fs);
-
-		while (fs_for_insert) {
-			if (fs_for_insert.eof()) break;
-			try
-			{
-				std::getline(fs_for_insert, str, ',');
-				key_temp = std::stoi(str);
-				std::getline(fs_for_insert, str, '\n');
-				value_temp = std::stoi(str);
-			}
-			catch (const std::exception& e)
-			{
-				break;
-			}
-			good.push_back(Entry{ key_temp, value_temp });
-		}
-
-		fs_for_insert.close();
-
-		for (auto& itr : good) {
-			try
-			{
-				tree.Insert(fs, itr.get_key(), itr.get_value());
-			}
-			catch (const std::exception&)
-			{
-				std::cout << "Error!" << std::endl;
-			}
-		}
-
-
+		InsertFromText(fs, fs_for_other, tree);
+		fs.close();
+		fs_for_other.close();
 		break;
 	case 's':
 		std::cin >> file_name >> file_name_for_insert >> file_name_for_out;
-		fs_for_insert.open(file_name_for_insert, std::ios::in);
-
-		while (fs_for_insert) {
-			try
-			{
-				std::getline(fs_for_insert, str);
-				temp_int.push_back(std::stoi(str));
-			}
-			catch (const std::exception&)
-			{
-				break;
-			}
-
-		}
-		fs_for_insert.close();
+		fs_for_other.open(file_name_for_insert, std::ios::in);
 		fs.open(file_name, std::ios::binary | std::ios::in);
-		tree.UpdateMetaData(fs);
-
-		fs_for_insert.open(file_name_for_out, std::ios::out);
-
-
-		for (auto& itr : temp_int) {
-			try
-			{
-				Entry etr = tree.PointSearch(fs, itr);
-				etr.Print();
-				fs_for_insert << etr.get_key() << ',' << etr.get_value() << std::endl;
-			}
-			catch (const std::exception&)
-			{
-				std::cout << "asdf!" << std::endl;
-			}
+		if (!fs.is_open() || !fs_for_other.is_open()) {
+			std::cout << "Can't open the file!" << std::endl;
+			return 1;
 		}
-
+		tree.UpdateMetaData(fs);
+		PointSearchFromText(fs, fs_for_other, file_name_for_out, tree);
+		fs.close();
+		fs_for_other.close();
 		break;
 	case 'r':
 		std::cin >> file_name >> file_name_for_insert >> file_name_for_out;
-		fs_for_insert.open(file_name_for_insert, std::ios::in);
-
-		while (fs_for_insert) {
-			try
-			{
-				std::getline(fs_for_insert, str, ',');
-				key_temp = std::stoi(str);
-				std::getline(fs_for_insert, str, '\n');
-				value_temp = std::stoi(str);
-
-				tuples.push_back(std::make_tuple(key_temp, value_temp));
-			}
-			catch (const std::exception&)
-			{
-				break;
-			}
-
-		}
-
-		fs_for_insert.close();
+		fs_for_other.open(file_name_for_insert, std::ios::in);
 		fs.open(file_name, std::ios::in | std::ios::binary);
-		fs_for_insert.open(file_name_for_out, std::ios::out);
-		tree.UpdateMetaData(fs);
-
-		for (auto& itr : tuples) {
-			try
-			{
-				std::vector<Entry> vec = tree.RangeSearch(fs, std::get<0>(itr), std::get<1>(itr));
-				for (auto& itr_2 : vec)
-					fs_for_insert << itr_2.get_key() << ',' << itr_2.get_value() << '\t';
-			}
-			catch (const std::exception&)
-			{
-
-			}
-			fs_for_insert << std::endl;
+		if (!fs.is_open() || !fs_for_other.is_open()) {
+			std::cout << "Can't open the file!" << std::endl;
+			return 1;
 		}
-
-
+		tree.UpdateMetaData(fs);
+		RangeSearchFromText(fs, fs_for_other, file_name_for_out, tree);
+		fs.close();
+		fs_for_other.close();
 		break;
 	case 'p':
 		std::cin >> file_name >> file_name_for_insert;
+		fs_for_other.open(file_name_for_insert, std::ios::out);
 		fs.open(file_name, std::ios::binary | std::ios::in);
+		if (!fs.is_open() || !fs_for_other.is_open()) {
+			std::cout << "Can't open the file!" << std::endl;
+			return 1;
+		}
 		tree.UpdateMetaData(fs);
-		fs_for_insert.open(file_name_for_insert, std::ios::out);
-		tree.Print(fs, fs_for_insert);
+		tree.Print(fs, fs_for_other);
+		fs.close();
+		fs_for_other.close();
 		break;
 	default:
+		std::cout << "Wrong Command!" << std::endl;
 		break;
 	}
-
-
-
-
+	return 0;
 }
