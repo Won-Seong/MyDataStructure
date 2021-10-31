@@ -1,6 +1,5 @@
 #pragma once
 #include "AdjListGraph.h"
-#include <algorithm>
 
 template<typename VT, typename ET>
 inline void AdjListGraph<VT, ET>::Print() const

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <set>
+#include <algorithm>
 
 template <typename VT, typename ET>
 class AdjListGraph : std::exception {
@@ -9,10 +10,8 @@ private:
 	class Vertex;
 	class Edge;
 	using VertexPtr = std::shared_ptr<Vertex>;
-	using VertexList = std::vector<VertexPtr>;
 	using VertexWeakPtr = std::weak_ptr<Vertex>;
 	using EdgePtr = std::shared_ptr<Edge>;
-	using EdgeList = std::vector<EdgePtr>;
 	using EdgeWeakPtr = std::weak_ptr<Edge>;
 	using IncidentEdgeList = std::vector< EdgePtr >;
 	using IncidentEdgeListPtr = std::shared_ptr< IncidentEdgeList >;
@@ -23,6 +22,9 @@ private:
 		DISCOVERY,
 		BACK
 	};
+public:
+	using VertexList = std::vector<VertexPtr>;
+	using EdgeList = std::vector<EdgePtr>;
 private:
 	class Vertex {
 	private:

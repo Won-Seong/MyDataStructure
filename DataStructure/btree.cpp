@@ -485,85 +485,85 @@ bool RangeSearchFromText(std::fstream& fs, std::fstream& fs_second, std::string&
 	}
 	return true;
 }
-
-int main() {
-	char command;
-	B_tree tree;
-	std::string file_name;//For btree.bin
-	std::string file_name_for_insert;//For txt
-	std::string file_name_for_out;//For txt
-	std::fstream fs;//For btree.bin
-	std::fstream fs_for_other;//For txt
-	int block_size = int();
-
-	std::cin >> command;
-	switch (command)
-	{
-	case 'c':
-		std::cin >> file_name >> block_size;
-		fs.open(file_name, std::ios::binary | std::ios::out | std::ios::trunc);
-		if (!fs.is_open()) {
-			std::cout << "Can't open the file!" << std::endl;
-			return 1;
-		}
-		CreateBinaryFile(fs, block_size);
-		fs.close();
-		break;
-	case 'i':
-		std::cin >> file_name >> file_name_for_insert;
-		fs_for_other.open(file_name_for_insert, std::ios::in);
-		fs.open(file_name, std::ios::out | std::ios::in | std::ios::binary);
-		if (!fs.is_open() || !fs_for_other.is_open()) {
-			std::cout << "Can't open the file!" << std::endl;
-			return 1;
-		}
-		tree.UpdateMetaData(fs);
-		InsertFromText(fs, fs_for_other, tree);
-		fs.close();
-		fs_for_other.close();
-		break;
-	case 's':
-		std::cin >> file_name >> file_name_for_insert >> file_name_for_out;
-		fs_for_other.open(file_name_for_insert, std::ios::in);
-		fs.open(file_name, std::ios::binary | std::ios::in);
-		if (!fs.is_open() || !fs_for_other.is_open()) {
-			std::cout << "Can't open the file!" << std::endl;
-			return 1;
-		}
-		tree.UpdateMetaData(fs);
-		PointSearchFromText(fs, fs_for_other, file_name_for_out, tree);
-		fs.close();
-		fs_for_other.close();
-		break;
-	case 'r':
-		std::cin >> file_name >> file_name_for_insert >> file_name_for_out;
-		fs_for_other.open(file_name_for_insert, std::ios::in);
-		fs.open(file_name, std::ios::in | std::ios::binary);
-		if (!fs.is_open() || !fs_for_other.is_open()) {
-			std::cout << "Can't open the file!" << std::endl;
-			return 1;
-		}
-		tree.UpdateMetaData(fs);
-		RangeSearchFromText(fs, fs_for_other, file_name_for_out, tree);
-		fs.close();
-		fs_for_other.close();
-		break;
-	case 'p':
-		std::cin >> file_name >> file_name_for_insert;
-		fs_for_other.open(file_name_for_insert, std::ios::out);
-		fs.open(file_name, std::ios::binary | std::ios::in);
-		if (!fs.is_open() || !fs_for_other.is_open()) {
-			std::cout << "Can't open the file!" << std::endl;
-			return 1;
-		}
-		tree.UpdateMetaData(fs);
-		tree.Print(fs, fs_for_other);
-		fs.close();
-		fs_for_other.close();
-		break;
-	default:
-		std::cout << "Wrong Command!" << std::endl;
-		break;
-	}
-	return 0;
-}
+//
+//int main() {
+//	char command;
+//	B_tree tree;
+//	std::string file_name;//For btree.bin
+//	std::string file_name_for_insert;//For txt
+//	std::string file_name_for_out;//For txt
+//	std::fstream fs;//For btree.bin
+//	std::fstream fs_for_other;//For txt
+//	int block_size = int();
+//
+//	std::cin >> command;
+//	switch (command)
+//	{
+//	case 'c':
+//		std::cin >> file_name >> block_size;
+//		fs.open(file_name, std::ios::binary | std::ios::out | std::ios::trunc);
+//		if (!fs.is_open()) {
+//			std::cout << "Can't open the file!" << std::endl;
+//			return 1;
+//		}
+//		CreateBinaryFile(fs, block_size);
+//		fs.close();
+//		break;
+//	case 'i':
+//		std::cin >> file_name >> file_name_for_insert;
+//		fs_for_other.open(file_name_for_insert, std::ios::in);
+//		fs.open(file_name, std::ios::out | std::ios::in | std::ios::binary);
+//		if (!fs.is_open() || !fs_for_other.is_open()) {
+//			std::cout << "Can't open the file!" << std::endl;
+//			return 1;
+//		}
+//		tree.UpdateMetaData(fs);
+//		InsertFromText(fs, fs_for_other, tree);
+//		fs.close();
+//		fs_for_other.close();
+//		break;
+//	case 's':
+//		std::cin >> file_name >> file_name_for_insert >> file_name_for_out;
+//		fs_for_other.open(file_name_for_insert, std::ios::in);
+//		fs.open(file_name, std::ios::binary | std::ios::in);
+//		if (!fs.is_open() || !fs_for_other.is_open()) {
+//			std::cout << "Can't open the file!" << std::endl;
+//			return 1;
+//		}
+//		tree.UpdateMetaData(fs);
+//		PointSearchFromText(fs, fs_for_other, file_name_for_out, tree);
+//		fs.close();
+//		fs_for_other.close();
+//		break;
+//	case 'r':
+//		std::cin >> file_name >> file_name_for_insert >> file_name_for_out;
+//		fs_for_other.open(file_name_for_insert, std::ios::in);
+//		fs.open(file_name, std::ios::in | std::ios::binary);
+//		if (!fs.is_open() || !fs_for_other.is_open()) {
+//			std::cout << "Can't open the file!" << std::endl;
+//			return 1;
+//		}
+//		tree.UpdateMetaData(fs);
+//		RangeSearchFromText(fs, fs_for_other, file_name_for_out, tree);
+//		fs.close();
+//		fs_for_other.close();
+//		break;
+//	case 'p':
+//		std::cin >> file_name >> file_name_for_insert;
+//		fs_for_other.open(file_name_for_insert, std::ios::out);
+//		fs.open(file_name, std::ios::binary | std::ios::in);
+//		if (!fs.is_open() || !fs_for_other.is_open()) {
+//			std::cout << "Can't open the file!" << std::endl;
+//			return 1;
+//		}
+//		tree.UpdateMetaData(fs);
+//		tree.Print(fs, fs_for_other);
+//		fs.close();
+//		fs_for_other.close();
+//		break;
+//	default:
+//		std::cout << "Wrong Command!" << std::endl;
+//		break;
+//	}
+//	return 0;
+//}
