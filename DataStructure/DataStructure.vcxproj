@@ -148,6 +148,7 @@
     <ClCompile Include="ListPriorityQueue.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MaxIntPriorityQueue.cpp" />
+    <ClCompile Include="RedBlackTree.cpp" />
     <ClCompile Include="String.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +172,7 @@
     <ClInclude Include="Heap.hpp" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="Queue.hpp" />
+    <ClInclude Include="RedBlackTree.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SinglyLinkedList.h" />
     <ClInclude Include="SinglyLinkedList.hpp" />

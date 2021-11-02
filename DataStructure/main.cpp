@@ -1,24 +1,22 @@
-#include "AdjListGraph.h"
+#include "RedBlackTree.h"
 
 int main() {
-	AdjListGraph<int, int> graph;
+	
+	RedBlackTree tree;
+	std::cout << "love ya" << std::endl;
+	Application app{ 1,"good",2,3 };
 
-	int number;
-	std::cin >> number;
+	tree.AddRoot(app);
+	std::cout << "love ya" << std::endl;
+	tree.SearchNode(100)->Print();
 
-	for (int j = 0; j < number; j++) {
-		graph.InsertVertex(j + 1);
-	}
 
-	std::cin >> number;
-	int alpha, beta;
+	tree.InsertNode(Application(10, "dd", 4, 5));
+	tree.InsertNode(Application(5, "dd", 4, 5));
+	tree.InsertNode(Application(134, "dd", 4, 5));
+	tree.InsertNode(Application(77, "dd", 4, 5));
 
-	for (int j = 0; j < 6; j++) {
-		std::cin >> alpha >> beta;
-		graph.InsertEdge(graph.SearchVertex(alpha), graph.SearchVertex(beta), int());
-	}
-	std::vector<int> vertices;
-	vertices = graph.BfsFunction(graph.SearchVertex(1));
+	tree.SearchNode(77)->Print();
 
-	std::cout << vertices.size() - 1;
+	return 0;
 }

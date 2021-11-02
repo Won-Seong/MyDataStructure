@@ -53,6 +53,9 @@
     <ClCompile Include="btree.cpp">
       <Filter>소스 파일\Tree\SearchTree</Filter>
     </ClCompile>
+    <ClCompile Include="RedBlackTree.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vector.h">
@@ -142,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="(2,4)Tree.hpp">
       <Filter>소스 파일\Tree\SearchTree</Filter>
+    </ClInclude>
+    <ClInclude Include="RedBlackTree.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
