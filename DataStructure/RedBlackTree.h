@@ -40,7 +40,7 @@ public:
 	unsigned int get_capacity() const { return capacity_; }
 	int get_price() const { return price_; }
 	bool IsEmpty() const { return id_ == unsigned int(); }
-	void Print() const;
+	bool Print() const;
 };
 
 class RedBlackTree {
@@ -60,22 +60,9 @@ private:
 		Color color_;
 	public:
 		Node(const int& id, std::string_view name, const unsigned int& capacity, const int& price, NodePtr parent = nullptr) :
-			app_(id, name, capacity, price), left_child_(std::make_shared<Node>(Application())), right_child_(std::make_shared<Node>(Application())), parent_(parent), color_(Color::RED) {};
-		/*Node(const Application& app, NodePtr parent = nullptr) :
-			app_(app), left_child_(std::make_shared<Node>(Application())), right_child_(std::make_shared<Node>(Application())), parent_(parent), color_(Color::RED) {
-			
-		};*/
-		Node(const Application& app) {
-			app_ = app;
-			std::cout << "a" << std::endl;
-			system("pause");
-			left_child_ = std::make_shared<Node>(Application());
-			std::cout << "b" << std::endl;
-
-			right_child_ = std::make_shared<Node>(Application());
-			parent_ = nullptr;
-			color_ = Color::RED;
-		}
+			app_(id, name, capacity, price), left_child_(nullptr), right_child_(nullptr), parent_(parent), color_(Color::RED) {};
+		Node(const Application& app, NodePtr parent = nullptr) :
+			app_(app), left_child_(nullptr), right_child_(nullptr), parent_(parent), color_(Color::RED) {};
 		Node(const Node&) = delete;
 		Node(Node&&) = delete;
 		Node& operator=(const Node&) = delete;
@@ -88,21 +75,26 @@ private:
 		NodePtr left() const { return left_child_; }
 		NodePtr right() const { return right_child_; }
 		NodePtr parent() const { return parent_; }
+		void set_left(NodePtr ptr) { left_child_ = ptr; }
+		void set_right(NodePtr ptr) { right_child_ = ptr; }
 		Color get_color() const { return color_; }
 		void SetApplication(const Application& app) {
 			app_ = app;
 		}
+		void UpdateApplication(std::string name, unsigned int capacity, int price) { app_.set_name(name); app_.set_capacity(capacity); app_.set_price(price); }
 		void Print() const;
-		
 	};
 public:
 	RedBlackTree() : size_(0), root_(nullptr) {};
 public:
 	unsigned int get_size() const { return size_; }
 	bool IsEmpty() const { return size_ == 0; };
-	void AddRoot(const Application& app) { root_ = std::make_shared<Node>(app); size_ = 1; }
+	void AddRoot(const Application& app);
 	void InsertNode(const Application& app);
 	NodePtr SearchNode(unsigned int id) const;
+	const Application& UpdateNode(unsigned int id, std::string name, unsigned int capacity, int price);
+private:
+	void ExpandExternal(NodePtr ptr);//It changes leave's children from nullptr to empty node
 private:
 	NodePtr root_;
 	unsigned int size_;
