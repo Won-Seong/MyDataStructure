@@ -49,6 +49,7 @@ private:
 		RED, BLACK
 	};
 	struct Node;
+public:
 	using NodePtr = std::shared_ptr<Node>;
 private:
 	struct Node {
@@ -75,14 +76,23 @@ private:
 		NodePtr left() const { return left_child_; }
 		NodePtr right() const { return right_child_; }
 		NodePtr parent() const { return parent_; }
+		NodePtr grandparent() const { return parent_->parent(); }
+		NodePtr uncle() const { 
+			return grandparent()->left() == parent_ ? grandparent()->right() : grandparent()->left();
+		}
 		void set_left(NodePtr ptr) { left_child_ = ptr; }
 		void set_right(NodePtr ptr) { right_child_ = ptr; }
+		void set_parent(NodePtr ptr) { parent_ = ptr; }
 		Color get_color() const { return color_; }
 		void SetApplication(const Application& app) {
 			app_ = app;
 		}
 		void UpdateApplication(std::string name, unsigned int capacity, int price) { app_.set_name(name); app_.set_capacity(capacity); app_.set_price(price); }
 		void Print() const;
+		int IsDoubleRed() const;//Is the parent red when this is red?
+		//return : 0(No double red) | 1(Double red and needs recoloring) | 2(Double red and needs reconstruct)
+		Color ChangeColor() { if (color_ == Color::RED) color_ = Color::BLACK; else color_ = Color::RED; return color_; };
+		Color ChangeColor(Color color) { color_ = color; return color_; };
 	};
 public:
 	RedBlackTree() : size_(0), root_(nullptr) {};
@@ -90,11 +100,14 @@ public:
 	unsigned int get_size() const { return size_; }
 	bool IsEmpty() const { return size_ == 0; };
 	void AddRoot(const Application& app);
-	void InsertNode(const Application& app);
-	NodePtr SearchNode(unsigned int id) const;
-	const Application& UpdateNode(unsigned int id, std::string name, unsigned int capacity, int price);
-private:
+	unsigned int InsertNode(const Application& app);
+	NodePtr SearchNode(unsigned int id, unsigned int& depth) const;
+	Application UpdateNode(unsigned int id, std::string name, unsigned int capacity, int price);
+	void Debug() const;
+private://Internal function
 	void ExpandExternal(NodePtr ptr);//It changes leave's children from nullptr to empty node
+	NodePtr Recoloring(NodePtr ptr);//Recolor nodes
+	void Reconstruct(NodePtr ptr, unsigned int& depth);//Reconstruct a node
 private:
 	NodePtr root_;
 	unsigned int size_;

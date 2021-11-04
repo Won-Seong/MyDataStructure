@@ -1,23 +1,43 @@
 #include "RedBlackTree.h"
 
 int main() {
-	
 	RedBlackTree tree;
-	Application app{ 1,"good",2,3 };
-	tree.AddRoot(app);
 
-	tree.SearchNode(1)->Print();
-	tree.SearchNode(2)->Print();
+	int number;
+	std::cin >> number;
 
+	char inst{ char() };
+	unsigned int id{ unsigned int() };
+	std::string name{ std::string() };
+	unsigned int capacity{ unsigned int() };
+	int price{ int() };
+	unsigned int depth{ 0 };
 
-	tree.InsertNode(Application(10, "dd", 4, 5));
-	tree.InsertNode(Application(5, "dd", 4, 5));
-	tree.InsertNode(Application(134, "dd", 4, 5));
-	tree.InsertNode(Application(77, "dd", 4, 5));
-
-	tree.SearchNode(77)->Print();
-	tree.UpdateNode(77, "whatthe", 100, 200);
-	tree.SearchNode(77)->Print();
+	for (int j = 0; j < number; j++) {
+		std::cin >> inst;
+		switch (inst)
+		{
+		case 'I':
+			std::cin >> id >> name >> capacity >> price;
+			std::cout << tree.InsertNode(Application(id, name, capacity, price)) << std::endl;
+			break;
+		case 'R':
+			std::cin >> id >> name >> capacity >> price;
+			tree.UpdateNode(id, name, capacity, price);
+			break;
+		case 'F':
+			std::cin >> id;
+			depth = 0;
+			tree.SearchNode(id, depth)->Print();
+			break;
+		case 'D' :
+			tree.Debug();
+			break;
+		default:
+			break;
+		}
+	}
+	
 
 	return 0;
 }
