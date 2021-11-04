@@ -30,7 +30,6 @@ unsigned int RedBlackTree::InsertNode(const Application& app)
 	ptr->ChangeColor(Color::RED);
 	ExpandExternal(ptr);
 	size_++; 
-	unsigned int temp{ depth };
 	switch (ptr->IsDoubleRed())
 	{
 	case 0:
@@ -39,9 +38,10 @@ unsigned int RedBlackTree::InsertNode(const Application& app)
 		while (ptr->IsDoubleRed() == 1) {
 			ptr = Recoloring(ptr);
 		}
-		if (ptr->IsDoubleRed() == 2)
-			Reconstruct(ptr,depth);
-		return temp;
+		if (ptr->IsDoubleRed() == 2) {
+			Reconstruct(ptr, depth);
+		}
+		return depth;
 		break;
 	case 2:
 		Reconstruct(ptr, depth);
@@ -121,7 +121,7 @@ RedBlackTree::NodePtr RedBlackTree::Recoloring(NodePtr ptr)
 	ptr->parent()->ChangeColor();
 	ptr->uncle()->ChangeColor();
 	if (!(ptr->grandparent()->IsRoot())) ptr->grandparent()->ChangeColor();
-	return ptr->parent();
+	return ptr->grandparent();
 }
 
 void RedBlackTree::Reconstruct(NodePtr ptr, unsigned int& depth)
@@ -143,7 +143,12 @@ void RedBlackTree::Reconstruct(NodePtr ptr, unsigned int& depth)
 		}
 		ptr->parent()->ChangeColor();
 		ptr->parent()->set_parent(old_grandparent->parent());
-		if (!(old_grandparent->IsRoot())) old_grandparent->parent()->set_left(ptr->parent());
+		if (!(old_grandparent->IsRoot())) {
+			if (old_grandparent->parent()->left() == old_grandparent)
+				old_grandparent->parent()->set_left(ptr->parent());
+			else
+				old_grandparent->parent()->set_right(ptr->parent());
+		}
 		old_grandparent->set_left(ptr->parent()->right());
 		ptr->parent()->right()->set_parent(old_grandparent);
 		old_grandparent->set_parent(ptr->parent());
@@ -161,7 +166,12 @@ void RedBlackTree::Reconstruct(NodePtr ptr, unsigned int& depth)
 			depth--;
 		}
 		ptr->parent()->ChangeColor();
-		if (!(old_grandparent->IsRoot())) old_grandparent->parent()->set_right(ptr->parent());
+		if (!(old_grandparent->IsRoot())) { 
+			if(old_grandparent->parent()->left() == old_grandparent)
+				old_grandparent->parent()->set_left(ptr->parent()); 
+			else
+				old_grandparent->parent()->set_right(ptr->parent());
+		}
 		ptr->parent()->set_parent(old_grandparent->parent());
 		old_grandparent->set_right(ptr->parent()->left());
 		ptr->parent()->left()->set_parent(old_grandparent);

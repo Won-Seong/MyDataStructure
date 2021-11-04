@@ -108,6 +108,11 @@ private://Internal function
 	void ExpandExternal(NodePtr ptr);//It changes leave's children from nullptr to empty node
 	NodePtr Recoloring(NodePtr ptr);//Recolor nodes
 	void Reconstruct(NodePtr ptr, unsigned int& depth);//Reconstruct a node
+	unsigned int get_depth(NodePtr ptr) const {
+		unsigned int depth{ 0 };
+		SearchNode(ptr->get_app().get_id(), depth);
+		return depth;
+	};
 private:
 	NodePtr root_;
 	unsigned int size_;
