@@ -145,10 +145,12 @@
   <ItemGroup>
     <ClCompile Include="AdjMatrixGraph.cpp" />
     <ClCompile Include="btree.cpp" />
+    <ClCompile Include="IndexTree.cpp" />
     <ClCompile Include="ListPriorityQueue.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MaxIntPriorityQueue.cpp" />
     <ClCompile Include="RedBlackTree.cpp" />
+    <ClCompile Include="SimplePrimAlgorithm.cpp" />
     <ClCompile Include="String.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -170,10 +172,12 @@
     <ClInclude Include="HashTable.hpp" />
     <ClInclude Include="Heap.h" />
     <ClInclude Include="Heap.hpp" />
+    <ClInclude Include="IndexTree.h" />
     <ClInclude Include="Queue.h" />
     <ClInclude Include="Queue.hpp" />
     <ClInclude Include="RedBlackTree.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SimplePrimAlgorithm.h" />
     <ClInclude Include="SinglyLinkedList.h" />
     <ClInclude Include="SinglyLinkedList.hpp" />
     <ClInclude Include="Stack.h" />

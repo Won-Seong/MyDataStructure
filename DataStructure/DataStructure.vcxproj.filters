@@ -53,8 +53,14 @@
     <ClCompile Include="btree.cpp">
       <Filter>소스 파일\Tree\SearchTree</Filter>
     </ClCompile>
+    <ClCompile Include="SimplePrimAlgorithm.cpp">
+      <Filter>소스 파일\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexTree.cpp">
+      <Filter>소스 파일\Tree</Filter>
+    </ClCompile>
     <ClCompile Include="RedBlackTree.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Tree\SearchTree</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +153,12 @@
       <Filter>소스 파일\Tree\SearchTree</Filter>
     </ClInclude>
     <ClInclude Include="RedBlackTree.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SimplePrimAlgorithm.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexTree.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
