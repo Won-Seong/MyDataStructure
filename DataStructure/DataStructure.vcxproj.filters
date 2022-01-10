@@ -33,6 +33,15 @@
     <Filter Include="소스 파일\Linear\LinkedList">
       <UniqueIdentifier>{c720f9b8-41a2-4f5d-962a-2a1e90d884bd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Tree">
+      <UniqueIdentifier>{770f8db4-16c5-467e-80fe-75d3e5db0902}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Graph">
+      <UniqueIdentifier>{0b2bcb0f-4346-4c9a-bbd4-af899e140e8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Linear">
+      <UniqueIdentifier>{7c864aa4-d75b-42a6-8bb1-f2c58f6f48a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ListPriorityQueue.cpp">
@@ -62,41 +71,23 @@
     <ClCompile Include="RedBlackTree.cpp">
       <Filter>소스 파일\Tree\SearchTree</Filter>
     </ClCompile>
+    <ClCompile Include="UnionFind.cpp">
+      <Filter>소스 파일\Graph</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Vector.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h" />
-    <ClInclude Include="String.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SinglyLinkedList.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="SinglyLinkedList.hpp">
       <Filter>소스 파일\Linear\LinkedList</Filter>
-    </ClInclude>
-    <ClInclude Include="DoublyLinkedList.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DoublyLinkedList.hpp">
       <Filter>소스 파일\Linear\LinkedList</Filter>
     </ClInclude>
-    <ClInclude Include="CircularLinkedList.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CircularLinkedList.hpp">
       <Filter>소스 파일\Linear\LinkedList</Filter>
     </ClInclude>
-    <ClInclude Include="Stack.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Queue.hpp">
       <Filter>소스 파일\Linear\Queue</Filter>
-    </ClInclude>
-    <ClInclude Include="Queue.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Vector.hpp">
       <Filter>소스 파일\Linear</Filter>
@@ -110,26 +101,14 @@
     <ClInclude Include="HashTable.hpp">
       <Filter>소스 파일\Associative</Filter>
     </ClInclude>
-    <ClInclude Include="BinaryTree.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="BinaryTree.hpp">
       <Filter>소스 파일\Tree</Filter>
-    </ClInclude>
-    <ClInclude Include="Heap.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Heap.hpp">
       <Filter>소스 파일\Tree</Filter>
     </ClInclude>
-    <ClInclude Include="Tree.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Tree.hpp">
       <Filter>소스 파일\Tree</Filter>
-    </ClInclude>
-    <ClInclude Include="BinarySearchTree.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="BinarySearchTree.hpp">
       <Filter>소스 파일\Tree\SearchTree</Filter>
@@ -137,29 +116,65 @@
     <ClInclude Include="AdjListGraph.hpp">
       <Filter>소스 파일\Graph</Filter>
     </ClInclude>
-    <ClInclude Include="AdjListGraph.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DFS.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="DFS.hpp">
       <Filter>소스 파일\Graph</Filter>
-    </ClInclude>
-    <ClInclude Include="(2,4)Tree.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="(2,4)Tree.hpp">
       <Filter>소스 파일\Tree\SearchTree</Filter>
     </ClInclude>
-    <ClInclude Include="RedBlackTree.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="(2,4)Tree.h">
+      <Filter>헤더 파일\Tree</Filter>
     </ClInclude>
-    <ClInclude Include="SimplePrimAlgorithm.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="AdjListGraph.h">
+      <Filter>헤더 파일\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="BinarySearchTree.h">
+      <Filter>헤더 파일\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="BinaryTree.h">
+      <Filter>헤더 파일\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="DFS.h">
+      <Filter>헤더 파일\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="CircularLinkedList.h">
+      <Filter>헤더 파일\Linear</Filter>
+    </ClInclude>
+    <ClInclude Include="DoublyLinkedList.h">
+      <Filter>헤더 파일\Linear</Filter>
+    </ClInclude>
+    <ClInclude Include="Heap.h">
+      <Filter>헤더 파일\Tree</Filter>
     </ClInclude>
     <ClInclude Include="IndexTree.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="Queue.h">
+      <Filter>헤더 파일\Linear</Filter>
+    </ClInclude>
+    <ClInclude Include="RedBlackTree.h">
+      <Filter>헤더 파일\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="SimplePrimAlgorithm.h">
+      <Filter>헤더 파일\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="SinglyLinkedList.h">
+      <Filter>헤더 파일\Linear</Filter>
+    </ClInclude>
+    <ClInclude Include="Stack.h">
+      <Filter>헤더 파일\Linear</Filter>
+    </ClInclude>
+    <ClInclude Include="String.h">
+      <Filter>헤더 파일\Linear</Filter>
+    </ClInclude>
+    <ClInclude Include="Tree.h">
+      <Filter>헤더 파일\Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector.h">
+      <Filter>헤더 파일\Linear</Filter>
+    </ClInclude>
+    <ClInclude Include="UnionFind.h">
+      <Filter>헤더 파일\Graph</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
