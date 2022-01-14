@@ -30,3 +30,9 @@ size_t UnionFind::Find(size_t index)
 		union_vector_[itr] = index;	
 	return index;
 }
+
+size_t UnionFind::FindRecursive(size_t index)
+{
+	if (index == union_vector_[index]) return index;
+	else return union_vector_[index] = FindRecursive(union_vector_[index]);
+}

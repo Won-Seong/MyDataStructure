@@ -15,6 +15,7 @@ public:
 	void SetUnionVector();
 	size_t Union(size_t left, size_t right);
 	size_t Find(size_t index);//경로 압축 때문에 const가 아님
+	size_t FindRecursive(size_t index);
 public:
 	UnionFind(const size_t& size) :size_(size) { 
 		vector_.resize(size_); 
